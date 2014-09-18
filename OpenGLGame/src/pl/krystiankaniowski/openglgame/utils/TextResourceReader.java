@@ -10,6 +10,16 @@ import android.content.res.Resources;
 
 public class TextResourceReader {
 
+	// =========================================================================
+	// ----- STA£E -------------------------------------------------------------
+	// =========================================================================
+
+	private static final String TAG = TextResourceReader.class.getSimpleName();
+
+	// =========================================================================
+	// ----- LOGIKA ------------------------------------------------------------
+	// =========================================================================
+
 	/* Funkcja s³u¿¹ca do wczytywania zawratoœci plików w folderze raw */
 
 	public static String readTextFileFromResource(Context context, int resourceId) {

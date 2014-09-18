@@ -44,7 +44,7 @@ public class AirHockeyRenderer implements Renderer {
 
 	private static final int BYTES_PER_FLOAT = 4;
 	private static final int COLOR_COMPONENT_COUNT = 3;
-	private static final int POSITION_COMPONENT_COUNT = 2;
+	private static final int POSITION_COMPONENT_COUNT = 4;
 	private static final int STRIDE = (POSITION_COMPONENT_COUNT + COLOR_COMPONENT_COUNT) * BYTES_PER_FLOAT;
 
 	private final Context context;
@@ -62,24 +62,29 @@ public class AirHockeyRenderer implements Renderer {
 	private int aPositionLocation;
 	private int uMatrixLocation;
 
+	float[] tableVerticesWithTriangles = {
+			// Order of coordinates: X, Y, Z, W, R, G, B
+			// Triangle Fan
+			0f, 0f, 0f, 1.5f, 1f, 1f, 1f, -0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f, 0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f, 0.5f, 0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f, -0.5f, 0.8f, 0f, 2f, 0.7f, 0.7f, 0.7f,
+			-0.5f, -0.8f, 0f, 1f, 0.7f, 0.7f, 0.7f,
+			// Line 1
+			-0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f, 0.5f, 0f, 0f, 1.5f, 1f, 0f, 0f,
+			// Mallets
+			0f, -0.4f, 0f, 1.25f, 0f, 0f, 1f, 0f, 0.4f, 0f, 1.75f, 1f, 0f, 0f };
+
 	// =========================================================================
 	// ----- KONSTRUKTOR -------------------------------------------------------
 	// =========================================================================
-
-	float[] tableVerticesWithTriangles = {
-			// Order of coordinates: X, Y, R, G, B
-			// Triangle Fan
-			0f, 0f, 1f, 1f, 1f, -0.5f, -0.8f, 0.7f, 0.7f, 0.7f, 0.5f, -0.8f, 0.7f, 0.7f, 0.7f, 0.5f, 0.8f, 0.7f, 0.7f, 0.7f, -0.5f, 0.8f, 0.7f, 0.7f, 0.7f, -0.5f, -0.8f, 0.7f, 0.7f, 0.7f,
-			// Line 1
-			-0.5f, 0f, 1f, 0f, 0f, 0.5f, 0f, 1f, 0f, 0f,
-			// Mallets
-			0f, -0.4f, 0f, 0f, 1f, 0f, 0.4f, 1f, 0f, 0f };
 
 	public AirHockeyRenderer(Context context) {
 		this.context = context;
 		vertexData = ByteBuffer.allocateDirect(tableVerticesWithTriangles.length * BYTES_PER_FLOAT).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		vertexData.put(tableVerticesWithTriangles);
 	}
+
+	// =========================================================================
+	// ----- LOGIKA ------------------------------------------------------------
+	// =========================================================================
 
 	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
