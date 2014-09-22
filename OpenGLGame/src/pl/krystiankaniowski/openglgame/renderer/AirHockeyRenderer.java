@@ -23,6 +23,7 @@ import pl.krystiankaniowski.openglgame.utils.MatrixHelper;
 import pl.krystiankaniowski.openglgame.utils.TextureHelper;
 import android.content.Context;
 import android.opengl.GLSurfaceView.Renderer;
+import android.opengl.Matrix;
 
 public class AirHockeyRenderer implements Renderer {
 
@@ -83,6 +84,8 @@ public class AirHockeyRenderer implements Renderer {
 		// Clear the rendering surface.
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		rotateM(viewMatrix, 0, -0.1f, 0f, 1f, 0f);
+		
 		multiplyMM(viewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
 
 		positionTableInScene();
