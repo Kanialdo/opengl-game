@@ -4,6 +4,7 @@ import static android.opengl.GLES20.GL_POINTS;
 import static android.opengl.GLES20.glDrawArrays;
 import pl.krystiankaniowski.openglgame.Constansts;
 import pl.krystiankaniowski.openglgame.data.VertexArray;
+import pl.krystiankaniowski.openglgame.programs.ColorShaderProgram;
 
 public class Mallet {
 
@@ -32,13 +33,10 @@ public class Mallet {
 		vertexArray = new VertexArray(VERTEX_DATA);
 	}
 
-	// public void bindData(ColorShaderProgram colorProgram) {
-	// vertexArray.setVertexAttribPointer(0,
-	// colorProgram.getPositionAttributeLocation(), POSITION_COMPONENT_COUNT,
-	// STRIDE);
-	// vertexArray.setVertexAttribPointer(POSITION_COMPONENT_COUNT,
-	// colorProgram.getColorAttributeLocation(), COLOR_COMPONENT_COUNT, STRIDE);
-	// }
+	public void bindData(ColorShaderProgram colorProgram) {
+		vertexArray.setVertexAttribPointer(0, colorProgram.getPositionAttributeLocation(), POSITION_COMPONENT_COUNT, STRIDE);
+		vertexArray.setVertexAttribPointer(POSITION_COMPONENT_COUNT, colorProgram.getColorAttributeLocation(), COLOR_COMPONENT_COUNT, STRIDE);
+	}
 
 	public void draw() {
 		glDrawArrays(GL_POINTS, 0, 2);

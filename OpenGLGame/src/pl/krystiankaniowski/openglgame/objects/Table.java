@@ -4,6 +4,7 @@ import static android.opengl.GLES20.GL_TRIANGLE_FAN;
 import static android.opengl.GLES20.glDrawArrays;
 import pl.krystiankaniowski.openglgame.Constansts;
 import pl.krystiankaniowski.openglgame.data.VertexArray;
+import pl.krystiankaniowski.openglgame.programs.TextureShaderProgram;
 
 public class Table {
 
@@ -53,14 +54,10 @@ public class Table {
 	// ----- LOGIKA ------------------------------------------------------------
 	// =========================================================================
 
-	// public void bindData(TextureShaderProgram textureProgram) {
-	// vertexArray.setVertexAttribPointer(0,
-	// textureProgram.getPositionAttributeLocation(), POSITION_COMPONENT_COUNT,
-	// STRIDE);
-	// vertexArray.setVertexAttribPointer(POSITION_COMPONENT_COUNT,
-	// textureProgram.getTextureCoordinatesAttributeLocation(),
-	// TEXTURE_COORDINATES_COMPONENT_COUNT, STRIDE);
-	// }
+	public void bindData(TextureShaderProgram textureProgram) {
+		vertexArray.setVertexAttribPointer(0, textureProgram.getPositionAttributeLocation(), POSITION_COMPONENT_COUNT, STRIDE);
+		vertexArray.setVertexAttribPointer(POSITION_COMPONENT_COUNT, textureProgram.getTextureCoordinatesAttributeLocation(), TEXTURE_COORDINATES_COMPONENT_COUNT, STRIDE);
+	}
 
 	public void draw() {
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 6);
