@@ -20,10 +20,12 @@ public class TextResourceReader {
 	// ----- LOGIKA ------------------------------------------------------------
 	// =========================================================================
 
-	/* Funkcja s³u¿¹ca do wczytywania zawratoœci plików w folderze raw */
+	/** Funkcja s³u¿¹ca do wczytywania zawratoœci plików w folderze raw */
 
 	public static String readTextFileFromResource(Context context, int resourceId) {
+
 		StringBuilder body = new StringBuilder();
+
 		try {
 			InputStream inputStream = context.getResources().openRawResource(resourceId);
 			InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -38,7 +40,9 @@ public class TextResourceReader {
 		} catch (Resources.NotFoundException nfe) {
 			throw new RuntimeException("Resource not found: " + resourceId, nfe);
 		}
+
 		return body.toString();
+
 	}
 
 }

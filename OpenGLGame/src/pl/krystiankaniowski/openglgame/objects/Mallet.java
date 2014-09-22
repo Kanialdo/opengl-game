@@ -29,9 +29,17 @@ public class Mallet {
 
 	private final VertexArray vertexArray;
 
+	// =========================================================================
+	// ----- KONSTRUKTOR -------------------------------------------------------
+	// =========================================================================
+
 	public Mallet() {
 		vertexArray = new VertexArray(VERTEX_DATA);
 	}
+
+	// =========================================================================
+	// ----- LOGIKA ------------------------------------------------------------
+	// =========================================================================
 
 	public void bindData(ColorShaderProgram colorProgram) {
 		vertexArray.setVertexAttribPointer(0, colorProgram.getPositionAttributeLocation(), POSITION_COMPONENT_COUNT, STRIDE);

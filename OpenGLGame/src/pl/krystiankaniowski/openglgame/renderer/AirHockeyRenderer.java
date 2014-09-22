@@ -31,6 +31,7 @@ public class AirHockeyRenderer implements Renderer {
 	public static final String TAG = AirHockeyRenderer.class.getSimpleName();
 
 	private final Context context;
+	
 	private final float[] projectionMatrix = new float[16];
 	private final float[] modelMatrix = new float[16];
 
@@ -96,12 +97,9 @@ public class AirHockeyRenderer implements Renderer {
 
 		MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width / (float) height, 1f, 10f);
 
-		// to odsuwa macierz o 2 od punktu widzenia, dziêki czemu mo¿na zobaczyæ
-		// obraz
 		setIdentityM(modelMatrix, 0);
-		// translateM(modelMatrix, 0, 0f, 0f, -2f);
-		translateM(modelMatrix, 0, 0f, 0f, -2.5f);
-		rotateM(modelMatrix, 0, -60f, 1f, 1f, 0f);
+		translateM(modelMatrix, 0, 0f, 0f, -3f);
+		rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);
 
 		final float[] temp = new float[16];
 		multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);

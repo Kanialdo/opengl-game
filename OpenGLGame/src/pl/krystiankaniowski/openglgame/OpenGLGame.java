@@ -39,6 +39,8 @@ public class OpenGLGame extends Activity {
 		final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
 		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
 
+		// Sprawdzenie czy telefon obs³uguje OpenGL ES 2.0
+		
 		if (supportsEs2) {
 			Debug.toast(this, TAG, "OpenGL ES 2.0. jest obs³ugiwany");
 			// Request an OpenGL ES 2.0 compatible context.
@@ -52,6 +54,9 @@ public class OpenGLGame extends Activity {
 		}
 
 	}
+
+	// Ze wzglêdu na cykl ¿ycia SurfaceView nale¿y wywo³aæ na nim onPause i
+	// onResume w chwili wy³¹czenia ekranu, aby system nie ubi³ aplikacji
 
 	@Override
 	protected void onPause() {

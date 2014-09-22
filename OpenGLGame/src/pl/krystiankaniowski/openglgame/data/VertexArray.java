@@ -21,9 +21,17 @@ public class VertexArray {
 
 	private final FloatBuffer floatBuffer;
 
+	// =========================================================================
+	// ----- KONSTRUKTOR -------------------------------------------------------
+	// =========================================================================
+
 	public VertexArray(float[] vertexData) {
 		floatBuffer = ByteBuffer.allocateDirect(vertexData.length * Constansts.BYTES_PER_FLOAT).order(ByteOrder.nativeOrder()).asFloatBuffer().put(vertexData);
 	}
+
+	// =========================================================================
+	// ----- LOGIKA ------------------------------------------------------------
+	// =========================================================================
 
 	public void setVertexAttribPointer(int dataOffset, int attributeLocation, int componentCount, int stride) {
 		floatBuffer.position(dataOffset);
