@@ -25,6 +25,8 @@ public class ShaderProgram {
 	// Shader program
 	protected final int program;
 
+	protected static final String U_COLOR = "u_Color" ;
+	
 	// =========================================================================
 	// ----- KONSTRUKTOR -------------------------------------------------------
 	// =========================================================================

@@ -7,6 +7,7 @@ import static android.opengl.GLES20.glViewport;
 import static android.opengl.Matrix.multiplyMM;
 import static android.opengl.Matrix.rotateM;
 import static android.opengl.Matrix.setIdentityM;
+import static android.opengl.Matrix.setLookAtM;
 import static android.opengl.Matrix.translateM;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -14,6 +15,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import pl.krystiankaniowski.openglgame.R;
 import pl.krystiankaniowski.openglgame.objects.Mallet;
+import pl.krystiankaniowski.openglgame.objects.Puck;
 import pl.krystiankaniowski.openglgame.objects.Table;
 import pl.krystiankaniowski.openglgame.programs.ColorShaderProgram;
 import pl.krystiankaniowski.openglgame.programs.TextureShaderProgram;
@@ -31,7 +33,11 @@ public class AirHockeyRenderer implements Renderer {
 	public static final String TAG = AirHockeyRenderer.class.getSimpleName();
 
 	private final Context context;
-	
+
+	private final float[] viewMatrix = new float[16];
+	private final float[] viewProjectionMatrix = new float[16];
+	private final float[] modelViewProjectionMatrix = new float[16];
+
 	private final float[] projectionMatrix = new float[16];
 	private final float[] modelMatrix = new float[16];
 
@@ -41,6 +47,7 @@ public class AirHockeyRenderer implements Renderer {
 
 	private Table table;
 	private Mallet mallet;
+	private Puck puck;
 
 	private TextureShaderProgram textureProgram;
 	private ColorShaderProgram colorProgram;
@@ -61,7 +68,8 @@ public class AirHockeyRenderer implements Renderer {
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 		table = new Table();
-		mallet = new Mallet();
+		mallet = new Mallet(0.08f, 0.15f, 32);
+		puck = new Puck(0.06f, 0.02f, 32);
 
 		textureProgram = new TextureShaderProgram(context);
 		colorProgram = new ColorShaderProgram(context);
@@ -75,17 +83,33 @@ public class AirHockeyRenderer implements Renderer {
 		// Clear the rendering surface.
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Draw the table.
+		multiplyMM(viewProjectionMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+
+		positionTableInScene();
 		textureProgram.useProgram();
-		textureProgram.setUniforms(projectionMatrix, texture);
+		textureProgram.setUniforms(modelViewProjectionMatrix, texture);
 		table.bindData(textureProgram);
 		table.draw();
 
 		// Draw the mallets.
+		positionObjectInScene(0f, mallet.height / 2f, -0.4f);
 		colorProgram.useProgram();
-		colorProgram.setUniforms(projectionMatrix);
+		colorProgram.setUniforms(modelViewProjectionMatrix, 1f, 0f, 0f);
 		mallet.bindData(colorProgram);
 		mallet.draw();
+
+		positionObjectInScene(0f, mallet.height / 2f, 0.4f);
+		colorProgram.setUniforms(modelViewProjectionMatrix, 0f, 0f, 1f);
+		// Note that we don't have to define the object data twice -- we just
+		// draw the same mallet again but in a different position and with a
+		// different color.
+		mallet.draw();
+
+		// Draw the puck.
+		positionObjectInScene(0f, puck.height / 2f, 0f);
+		colorProgram.setUniforms(modelViewProjectionMatrix, 0.8f, 0.8f, 1f);
+		puck.bindData(colorProgram);
+		puck.draw();
 
 	}
 
@@ -94,17 +118,28 @@ public class AirHockeyRenderer implements Renderer {
 
 		// Set the OpenGL viewport to fill the entire surface.
 		glViewport(0, 0, width, height);
-
 		MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width / (float) height, 1f, 10f);
 
+		// setLookAtM(float[] rm, int rmOffset, float eyeX, float eyeY, float
+		// eyeZ, float centerX, float centerY, float centerZ, float
+		// upX, float upY, float upZ)
+
+		setLookAtM(viewMatrix, 0, 0f, 1.2f, 2.2f, 0f, 0f, 0f, 0f, 1f, 0f);
+
+	}
+
+	private void positionTableInScene() {
+		// The table is defined in terms of X & Y coordinates, so we rotate it
+		// 90 degrees to lie flat on the XZ plane.
 		setIdentityM(modelMatrix, 0);
-		translateM(modelMatrix, 0, 0f, 0f, -3f);
-		rotateM(modelMatrix, 0, -60f, 1f, 0f, 0f);
+		rotateM(modelMatrix, 0, -90f, 1f, 0f, 0f);
+		multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix, 0, modelMatrix, 0);
+	}
 
-		final float[] temp = new float[16];
-		multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
-		System.arraycopy(temp, 0, projectionMatrix, 0, temp.length);
-
+	private void positionObjectInScene(float x, float y, float z) {
+		setIdentityM(modelMatrix, 0);
+		translateM(modelMatrix, 0, x, y, z);
+		multiplyMM(modelViewProjectionMatrix, 0, viewProjectionMatrix, 0, modelMatrix, 0);
 	}
 
 }
