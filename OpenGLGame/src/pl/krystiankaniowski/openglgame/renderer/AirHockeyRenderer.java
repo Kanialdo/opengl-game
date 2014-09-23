@@ -22,9 +22,11 @@ import pl.krystiankaniowski.openglgame.objects.Table;
 import pl.krystiankaniowski.openglgame.programs.ColorShaderProgram;
 import pl.krystiankaniowski.openglgame.programs.TextureShaderProgram;
 import pl.krystiankaniowski.openglgame.utils.Geometry;
+import pl.krystiankaniowski.openglgame.utils.Geometry.Plane;
 import pl.krystiankaniowski.openglgame.utils.Geometry.Point;
 import pl.krystiankaniowski.openglgame.utils.Geometry.Ray;
 import pl.krystiankaniowski.openglgame.utils.Geometry.Sphere;
+import pl.krystiankaniowski.openglgame.utils.Geometry.Vector;
 import pl.krystiankaniowski.openglgame.utils.MatrixHelper;
 import pl.krystiankaniowski.openglgame.utils.TextureHelper;
 import android.content.Context;
@@ -114,7 +116,8 @@ public class AirHockeyRenderer implements Renderer {
 		mallet.bindData(colorProgram);
 		mallet.draw();
 
-		positionObjectInScene(0f, mallet.height / 2f, 0.4f);
+		// positionObjectInScene(0f, mallet.height / 2f, 0.4f);
+		positionObjectInScene(blueMalletPosition.x, blueMalletPosition.y, blueMalletPosition.z);
 		colorProgram.setUniforms(modelViewProjectionMatrix, 0f, 0f, 1f);
 		// Note that we don't have to define the object data twice -- we just
 		// draw the same mallet again but in a different position and with a
@@ -176,6 +179,17 @@ public class AirHockeyRenderer implements Renderer {
 	}
 
 	public void handleTouchDrag(float normalizedX, float normalizedY) {
+
+		if (malletPressed) {
+			Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
+			// Define a plane representing our air hockey table.
+			Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 1, 0));
+			// Find out where the touched point intersects the plane
+			// representing our table. We'll move the mallet along this plane.
+			Point touchedPoint = Geometry.intersectionPoint(ray, plane);
+			blueMalletPosition = new Point(touchedPoint.x, mallet.height / 2f, touchedPoint.z);
+		}
+
 	}
 
 	private Ray convertNormalized2DPointToRay(float normalizedX, float normalizedY) {

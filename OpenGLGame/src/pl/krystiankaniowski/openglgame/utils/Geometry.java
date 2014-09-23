@@ -14,6 +14,8 @@ public class Geometry {
 	// ----- KLASY -------------------------------------------------------------
 	// =========================================================================
 
+	// ----- PRYMITYWY -----
+
 	public static class Point {
 
 		public final float x, y, z;
@@ -60,7 +62,10 @@ public class Geometry {
 
 	}
 
+	// ----- PRYMITYWY -----
+
 	public static class Vector {
+
 		public final float x, y, z;
 
 		public Vector(float x, float y, float z) {
@@ -77,6 +82,15 @@ public class Geometry {
 		public Vector crossProduct(Vector other) {
 			return new Vector((y * other.z) - (z * other.y), (z * other.x) - (x * other.z), (x * other.y) - (y * other.x));
 		}
+
+		public float dotProduct(Vector other) {
+			return x * other.x + y * other.y + z * other.z;
+		}
+
+		public Vector scale(float f) {
+			return new Vector(x * f, y * f, z * f);
+		}
+
 	}
 
 	public static class Ray {
@@ -88,6 +102,7 @@ public class Geometry {
 			this.point = point;
 			this.vector = vector;
 		}
+
 	}
 
 	public static Vector vectorBetween(Point from, Point to) {
@@ -96,6 +111,7 @@ public class Geometry {
 	}
 
 	public static class Sphere {
+
 		public final Point center;
 		public final float radius;
 
@@ -103,6 +119,7 @@ public class Geometry {
 			this.center = center;
 			this.radius = radius;
 		}
+
 	}
 
 	public static boolean intersects(Sphere sphere, Ray ray) {
@@ -110,8 +127,10 @@ public class Geometry {
 	}
 
 	public static float distanceBetween(Point point, Ray ray) {
+
 		Vector p1ToPoint = vectorBetween(ray.point, point);
 		Vector p2ToPoint = vectorBetween(ray.point.translate(ray.vector), point);
+
 		// The length of the cross product gives the area of an imaginary
 		// parallelogram having the two vectors as sides. A parallelogram can be
 		// thought of as consisting of two triangles, so this is the same as
@@ -119,11 +138,36 @@ public class Geometry {
 		// http://en.wikipedia.org/wiki/Cross_product#Geometric_meaning
 		float areaOfTriangleTimesTwo = p1ToPoint.crossProduct(p2ToPoint).length();
 		float lengthOfBase = ray.vector.length();
+
 		// The area of a triangle is also equal to (base * height) / 2. In
 		// other words, the height is equal to (area * 2) / base. The height
 		// of this triangle is the distance from the point to the ray.
 		float distanceFromPointToRay = areaOfTriangleTimesTwo / lengthOfBase;
+
 		return distanceFromPointToRay;
+
+	}
+
+	public static class Plane {
+
+		public final Point point;
+		public final Vector normal;
+
+		public Plane(Point point, Vector normal) {
+			this.point = point;
+			this.normal = normal;
+		}
+
+	}
+
+	public static Point intersectionPoint(Ray ray, Plane plane) {
+
+		Vector rayToPlaneVector = vectorBetween(ray.point, plane.point);
+		float scaleFactor = rayToPlaneVector.dotProduct(plane.normal) / ray.vector.dotProduct(plane.normal);
+		Point intersectionPoint = ray.point.translate(ray.vector.scale(scaleFactor));
+
+		return intersectionPoint;
+
 	}
 
 }
