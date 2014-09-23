@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 
 public class OpenGLGame extends Activity {
 
@@ -38,16 +41,50 @@ public class OpenGLGame extends Activity {
 		final ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 		final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
 		final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
+		final AirHockeyRenderer airHockeyRenderer = new AirHockeyRenderer(this);
 
 		// Sprawdzenie czy telefon obs³uguje OpenGL ES 2.0
-		
+
 		if (supportsEs2) {
 			Debug.toast(this, TAG, "OpenGL ES 2.0. jest obs³ugiwany");
 			// Request an OpenGL ES 2.0 compatible context.
 			glSurfaceView.setEGLContextClientVersion(2);
 			// Assign our renderer.
-			glSurfaceView.setRenderer(new AirHockeyRenderer(this));
+			glSurfaceView.setRenderer(airHockeyRenderer);
 			rendererSet = true;
+
+			glSurfaceView.setOnTouchListener(new OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					if (event != null) {
+						// Convert touch coordinates into normalized device
+						// coordinates, keeping in mind that Android's Y
+						// coordinates are inverted.
+						final float normalizedX = (event.getX() / (float) v.getWidth()) * 2 - 1;
+						final float normalizedY = -((event.getY() / (float) v.getHeight()) * 2 - 1);
+
+						if (event.getAction() == MotionEvent.ACTION_DOWN) {
+							glSurfaceView.queueEvent(new Runnable() {
+								@Override
+								public void run() {
+									airHockeyRenderer.handleTouchPress(normalizedX, normalizedY);
+								}
+							});
+						} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+							glSurfaceView.queueEvent(new Runnable() {
+								@Override
+								public void run() {
+									airHockeyRenderer.handleTouchDrag(normalizedX, normalizedY);
+								}
+							});
+						}
+						return true;
+					} else {
+						return false;
+					}
+				}
+			});
+
 		} else {
 			Debug.toast(this, TAG, "OpenGL ES 2.0. nie jest obs³ugiwany");
 			return;
