@@ -51,6 +51,11 @@ public class AirHockeyRenderer implements Renderer {
 	private final float[] projectionMatrix = new float[16];
 	private final float[] modelMatrix = new float[16];
 
+	private final float leftBound = -0.5f;
+	private final float rightBound = 0.5f;
+	private final float farBound = -0.8f;
+	private final float nearBound = 0.8f;
+
 	// =========================================================================
 	// ----- ZMIENNE -----------------------------------------------------------
 	// =========================================================================
@@ -66,6 +71,11 @@ public class AirHockeyRenderer implements Renderer {
 
 	private boolean malletPressed = false;
 	private Point blueMalletPosition;
+
+	private Point previousBlueMalletPosition;
+
+	private Point puckPosition;
+	private Vector puckVector;
 
 	// =========================================================================
 	// ----- KONSTRUKTOR -------------------------------------------------------
@@ -89,6 +99,9 @@ public class AirHockeyRenderer implements Renderer {
 		texture = TextureHelper.loadTexture(context, R.drawable.air_hockey_surface);
 
 		blueMalletPosition = new Point(0f, mallet.height / 2f, 0.4f);
+
+		puckPosition = new Point(0f, puck.height / 2f, 0f);
+		puckVector = new Vector(0f, 0f, 0f);
 
 	}
 
@@ -124,8 +137,23 @@ public class AirHockeyRenderer implements Renderer {
 		// different color.
 		mallet.draw();
 
+		puckPosition = puckPosition.translate(puckVector);
+
+		if (puckPosition.x < leftBound + puck.radius || puckPosition.x > rightBound - puck.radius) {
+			puckVector = new Vector(-puckVector.x, puckVector.y, puckVector.z);
+			puckVector = puckVector.scale(0.9f);
+		}
+		if (puckPosition.z < farBound + puck.radius || puckPosition.z > nearBound - puck.radius) {
+			puckVector = new Vector(puckVector.x, puckVector.y, -puckVector.z);
+			puckVector = puckVector.scale(0.9f);
+		}
+		// Clamp the puck position.
+		puckPosition = new Point(clamp(puckPosition.x, leftBound + puck.radius, rightBound - puck.radius), puckPosition.y, clamp(puckPosition.z, farBound + puck.radius, nearBound - puck.radius));
+
+		puckVector = puckVector.scale(0.99f);
+
 		// Draw the puck.
-		positionObjectInScene(0f, puck.height / 2f, 0f);
+		positionObjectInScene(puckPosition.x, puckPosition.y, puckPosition.z);
 		colorProgram.setUniforms(modelViewProjectionMatrix, 0.8f, 0.8f, 1f);
 		puck.bindData(colorProgram);
 		puck.draw();
@@ -181,15 +209,33 @@ public class AirHockeyRenderer implements Renderer {
 	public void handleTouchDrag(float normalizedX, float normalizedY) {
 
 		if (malletPressed) {
+
+			previousBlueMalletPosition = blueMalletPosition;
+
 			Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
 			// Define a plane representing our air hockey table.
 			Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 1, 0));
 			// Find out where the touched point intersects the plane
 			// representing our table. We'll move the mallet along this plane.
 			Point touchedPoint = Geometry.intersectionPoint(ray, plane);
-			blueMalletPosition = new Point(touchedPoint.x, mallet.height / 2f, touchedPoint.z);
+			// blueMalletPosition = new Point(touchedPoint.x, mallet.height /
+			// 2f, touchedPoint.z);
+			blueMalletPosition = new Point(clamp(touchedPoint.x, leftBound + mallet.radius, rightBound - mallet.radius), mallet.height / 2f, clamp(touchedPoint.z, 0f + mallet.radius, nearBound
+					- mallet.radius));
+
+			float distance = Geometry.vectorBetween(blueMalletPosition, puckPosition).length();
+			if (distance < (puck.radius + mallet.radius)) {
+				// The mallet has struck the puck. Now send the puck flying
+				// based on the mallet velocity.
+				puckVector = Geometry.vectorBetween(previousBlueMalletPosition, blueMalletPosition);
+			}
+
 		}
 
+	}
+
+	private float clamp(float value, float min, float max) {
+		return Math.min(max, Math.max(value, min));
 	}
 
 	private Ray convertNormalized2DPointToRay(float normalizedX, float normalizedY) {
